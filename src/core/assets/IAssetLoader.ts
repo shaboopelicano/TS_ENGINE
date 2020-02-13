@@ -3,5 +3,5 @@ import IAsset from "./IAsset";
 export default interface IAssetLoader {
 
     readonly supportedExtentions: string[];
-    loadAsset(assetName: string): IAsset;
+    loadAsset(assetName: string): void;
 }
