@@ -8,7 +8,7 @@ export const MESSAGE_ASSET_LOADER_ASSET_LOADED = "MESSAGE_ASSET_LOADER_ASSET_LOA
 export default class AssetManager {
 
     private static _loaders: IAssetLoader[] = [];
-    private static _loadedAssets: { [name: string]: IAsset }; //hashmap em js é mto estranho
+    private static _loadedAssets: { [name: string]: IAsset } = {}; //hashmap em js é mto estranho
 
     private constructor() {
 

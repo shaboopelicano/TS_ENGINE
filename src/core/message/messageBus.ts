@@ -4,7 +4,7 @@ import Message, { MessagePriority } from './message';
 
 export class MessageBus {
 
-    private static _subscriptions: { [code: string]: IMessageHandler[] }; // um objeto com um chave especifica e um vaor especifico
+    private static _subscriptions: { [code: string]: IMessageHandler[] } = {}; // um objeto com um chave especifica e um vaor especifico
     private static _normalQueueMessagePerUpdate: number = 10;
     private static _normalMessageQueue: MessageSubscriptionNode[] = [];
 
@@ -43,6 +43,7 @@ export class MessageBus {
     public static post(message: Message): void {
         console.log("Message posted: ", message);
         let handlers = MessageBus._subscriptions[message.code];
+        console.log(handlers);
         if (handlers === undefined) {
             return;
         }
