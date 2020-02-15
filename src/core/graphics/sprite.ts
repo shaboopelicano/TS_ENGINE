@@ -4,6 +4,9 @@ import { Texture } from './texture';
 import TextureManager from './textureManager';
 import { Shader } from '../gl/shader';
 import { gl } from '../gl/gl';
+import { Matrix4x4 } from '../math/matrix4x4';
+import Material from './material';
+import { MaterialManager } from './materialManager';
 
 export class Sprite {
 
@@ -12,17 +15,17 @@ export class Sprite {
     private _height: number;
 
     private _buffer: GLBuffer;
-    private _textureName: string;
-    private _texture: Texture;
+    private _materialName: string;
+    private _material: Material;
 
     public position: Vector3 = new Vector3();
 
-    public constructor(name: string, textureName: string, width: number = 100, height: number = 100) {
+    public constructor(name: string, materialName: string, width: number = 100, height: number = 100) {
         this._name = name;
         this._width = width;
         this._height = height;
-        this._textureName = textureName;
-        this._texture = TextureManager.getTexture(textureName);
+        this._materialName = materialName;
+        this._material = MaterialManager.getMaterial(materialName);
     }
 
     public get name(): string {
@@ -31,7 +34,9 @@ export class Sprite {
 
     public destroy(): void {
         this._buffer.destroy();
-        TextureManager.releaseTexture(this._textureName);
+        MaterialManager.releaseMaterial(this._materialName);
+        this._material = undefined;
+        this._materialName = undefined;
     }
 
     public load(): void {
@@ -55,9 +60,9 @@ export class Sprite {
         positionAttribute.size = 3;
 
         const texCoordAttribute = new AttributeInfo();
-        positionAttribute.location = 1; // location sempre vai ser na posição 0
-        positionAttribute.offset = 3;
-        positionAttribute.size = 2;
+        texCoordAttribute.location = 1; 
+        texCoordAttribute.offset = 3;
+        texCoordAttribute.size = 2;
 
         this._buffer = new GLBuffer(5);
         this._buffer.pushBackData(vertices);
@@ -74,9 +79,21 @@ export class Sprite {
 
     public draw(shader: Shader): void {
 
-        this._texture.activateAndBind(0);
-        const diffuseLocation = shader.getUniformLocation('u_diffuse');
-        gl.uniform1i(diffuseLocation, 0);
+        let modelLocation = shader.getUniformLocation("u_model");
+        gl.uniformMatrix4fv(modelLocation, false, new Float32Array(Matrix4x4.translation(this.position).data));
+
+        // const colorPosition = this._shader.getUniformLocation('u_color');
+        // gl.uniform4f(colorPosition,1,0.5,0, 1);
+        const colorLocation = shader.getUniformLocation('u_tint');
+        // gl.uniform4f(colorLocation, 1., 1., 1., 1.);
+
+        gl.uniform4fv(colorLocation,this._material.tint.toFloat32Array()); // aceita como argumento um vetor de floats
+
+        if (this._material.diffuseTexture !== undefined) {
+            this._material.diffuseTexture.activateAndBind(0);
+            const diffuseLocation = shader.getUniformLocation('u_diffuse');
+            gl.uniform1i(diffuseLocation, 0);
+        }
 
         this._buffer.bind();
         this._buffer.draw();

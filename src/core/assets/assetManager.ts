@@ -10,9 +10,7 @@ export default class AssetManager {
     private static _loaders: IAssetLoader[] = [];
     private static _loadedAssets: { [name: string]: IAsset } = {}; //hashmap em js é mto estranho
 
-    private constructor() {
-
-    }
+    private constructor() {}
 
     public static initialize(): void {
         AssetManager._loaders.push(new ImageAssetLoader());
@@ -35,7 +33,6 @@ export default class AssetManager {
                 return;
             }
         }
-
         console.warn("Unable to load asset with extension " + extension + " becouse the is no loader associated with it.");
     }
 

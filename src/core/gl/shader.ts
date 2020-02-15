@@ -1,20 +1,15 @@
 import { gl } from './gl';
 
-export class Shader {
+export abstract class Shader {
 
     private _name: string;
     private _program: WebGLProgram;
     private _attributes: { [name: string]: number } = {}; // hasmap ou dicionario em js , muito estranho!
     private _uniforms: { [name: string]: WebGLUniformLocation } = {}; // uniforms são como variáveis globais
 
-    public constructor(name: string, vertexSource: string, fragmentSource: string) {
+    public constructor(name: string) {
         this._name = name;
-        let vertexShader = this.loadShader(vertexSource, gl.VERTEX_SHADER);
-        let fragmentShader = this.loadShader(fragmentSource, gl.FRAGMENT_SHADER);
 
-        this.createProgram(vertexShader, fragmentShader);
-        this.detectAttributes();
-        this.detectUniforms();
     }
 
     public get name(): string {
@@ -50,6 +45,15 @@ export class Shader {
         if (this._uniforms[name] === undefined)
             throw new Error(`Unable to find uniform ${name} in shader ${this._name}`);
         return this._uniforms[name];
+    }
+
+    protected load(vertexSource: string, fragmentSource: string): void {
+        let vertexShader = this.loadShader(vertexSource, gl.VERTEX_SHADER);
+        let fragmentShader = this.loadShader(fragmentSource, gl.FRAGMENT_SHADER);
+
+        this.createProgram(vertexShader, fragmentShader);
+        this.detectAttributes();
+        this.detectUniforms();
     }
 
     private createProgram(vertexShader: WebGLShader, fragmentShader: WebGLShader): void {
